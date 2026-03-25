@@ -1,0 +1,48 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< com.employee:EmployeeModule >---------------------
+[INFO] Building EmployeeModule 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ EmployeeModule ---
+[INFO] Deleting C:\Users\ADMIN\Desktop\EmployeeModule\EmployeeModuleUpdatedFinaloneNochanges-Jayadeep\target
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ EmployeeModule ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ EmployeeModule ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 284 source files with javac [debug parameters release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR : 
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/ADMIN/Desktop/EmployeeModule/EmployeeModuleUpdatedFinaloneNochanges-Jayadeep/src/main/java/com/employee/service/ManagerMappingService.java:[877,25] cannot find symbol
+  symbol:   method getCampusIds()
+  location: variable unmappingDTO of type com.employee.dto.UnmappingDTO
+[ERROR] /C:/Users/ADMIN/Desktop/EmployeeModule/EmployeeModuleUpdatedFinaloneNochanges-Jayadeep/src/main/java/com/employee/service/ManagerMappingService.java:[877,64] cannot find symbol
+  symbol:   method getCampusIds()
+  location: variable unmappingDTO of type com.employee.dto.UnmappingDTO
+[INFO] 2 errors 
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  11.522 s
+[INFO] Finished at: 2026-03-09T16:02:31+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.14.1:compile (default-compile) on project EmployeeModule: Compilation failure: Compilation failure: 
+[ERROR] /C:/Users/ADMIN/Desktop/EmployeeModule/EmployeeModuleUpdatedFinaloneNochanges-Jayadeep/src/main/java/com/employee/service/ManagerMappingService.java:[877,25] cannot find symbol
+[ERROR]   symbol:   method getCampusIds()
+[ERROR]   location: variable unmappingDTO of type com.employee.dto.UnmappingDTO
+[ERROR] /C:/Users/ADMIN/Desktop/EmployeeModule/EmployeeModuleUpdatedFinaloneNochanges-Jayadeep/src/main/java/com/employee/service/ManagerMappingService.java:[877,64] cannot find symbol
+[ERROR]   symbol:   method getCampusIds()
+[ERROR]   location: variable unmappingDTO of type com.employee.dto.UnmappingDTO
+[ERROR] -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

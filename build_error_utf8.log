@@ -1,0 +1,107 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------< com.employee:EmployeeModule >---------------------
+[INFO] Building EmployeeModule 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.4.1:clean (default-clean) @ EmployeeModule ---
+[INFO] Deleting C:\Users\ADMIN\Desktop\EmployeeModule\EmployeeModuleUpdatedFinaloneNochanges-Jayadeep\target
+[INFO] 
+[INFO] >>> spring-boot:3.5.7:run (default-cli) > test-compile @ EmployeeModule >>>
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ EmployeeModule ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 0 resource from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.14.1:compile (default-compile) @ EmployeeModule ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 249 source files with javac [debug parameters release 17] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ EmployeeModule ---
+[INFO] skip non existing resourceDirectory C:\Users\ADMIN\Desktop\EmployeeModule\EmployeeModuleUpdatedFinaloneNochanges-Jayadeep\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.14.1:testCompile (default-testCompile) @ EmployeeModule ---
+[INFO] Recompiling the module because of changed dependency.
+[INFO] Compiling 1 source file with javac [debug parameters release 17] to target\test-classes
+[INFO] 
+[INFO] <<< spring-boot:3.5.7:run (default-cli) < test-compile @ EmployeeModule <<<
+[INFO] 
+[INFO] 
+[INFO] --- spring-boot:3.5.7:run (default-cli) @ EmployeeModule ---
+[INFO] Attaching agents: []
+
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+
+ :: Spring Boot ::                (v3.5.7)
+
+2026-01-22T12:51:41.730+05:30  INFO 61256 --- [EmployeeModule] [           main] com.employee.EmployeeModuleApplication   : Starting EmployeeModuleApplication using Java 17.0.12 with PID 61256 (C:\Users\ADMIN\Desktop\EmployeeModule\EmployeeModuleUpdatedFinaloneNochanges-Jayadeep\target\classes started by JAYADEEP in C:\Users\ADMIN\Desktop\EmployeeModule\EmployeeModuleUpdatedFinaloneNochanges-Jayadeep)
+2026-01-22T12:51:41.733+05:30  INFO 61256 --- [EmployeeModule] [           main] com.employee.EmployeeModuleApplication   : No active profile set, falling back to 1 default profile: "default"
+2026-01-22T12:51:42.783+05:30  INFO 61256 --- [EmployeeModule] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-01-22T12:51:42.963+05:30  INFO 61256 --- [EmployeeModule] [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 175 ms. Found 70 JPA repository interfaces.
+2026-01-22T12:51:43.152+05:30  INFO 61256 --- [EmployeeModule] [           main] o.s.cloud.context.scope.GenericScope     : BeanFactory id=ba187aa2-cadd-324d-bb57-a9878dbfde71
+2026-01-22T12:51:43.676+05:30  INFO 61256 --- [EmployeeModule] [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with port 8080 (http)
+2026-01-22T12:51:43.685+05:30  INFO 61256 --- [EmployeeModule] [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-01-22T12:51:43.685+05:30  INFO 61256 --- [EmployeeModule] [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.48]
+2026-01-22T12:51:43.730+05:30  INFO 61256 --- [EmployeeModule] [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-01-22T12:51:43.731+05:30  INFO 61256 --- [EmployeeModule] [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 1941 ms
+2026-01-22T12:51:44.035+05:30  INFO 61256 --- [EmployeeModule] [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-01-22T12:51:44.067+05:30  INFO 61256 --- [EmployeeModule] [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.6.33.Final
+2026-01-22T12:51:44.097+05:30  INFO 61256 --- [EmployeeModule] [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000026: Second-level cache disabled
+2026-01-22T12:51:44.267+05:30  INFO 61256 --- [EmployeeModule] [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-01-22T12:51:44.288+05:30  INFO 61256 --- [EmployeeModule] [           main] com.zaxxer.hikari.HikariDataSource       : Your_Name - Starting...
+2026-01-22T12:51:44.402+05:30  INFO 61256 --- [EmployeeModule] [           main] com.zaxxer.hikari.HikariDataSource       : Your_Name - Start completed.
+2026-01-22T12:51:44.457+05:30  WARN 61256 --- [EmployeeModule] [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-01-22T12:51:44.478+05:30  INFO 61256 --- [EmployeeModule] [           main] org.hibernate.orm.connections.pooling    : HHH10001005: Database info:
+	Database JDBC URL [Connecting through datasource 'HikariDataSource (Your_Name)']
+	Database driver: undefined/unknown
+	Database version: 16.11
+	Autocommit mode: undefined/unknown
+	Isolation level: undefined/unknown
+	Minimum pool size: undefined/unknown
+	Maximum pool size: undefined/unknown
+2026-01-22T12:51:45.706+05:30  INFO 61256 --- [EmployeeModule] [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-01-22T12:51:45.708+05:30  INFO 61256 --- [EmployeeModule] [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-01-22T12:51:45.984+05:30  INFO 61256 --- [EmployeeModule] [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-01-22T12:51:48.418+05:30  INFO 61256 --- [EmployeeModule] [           main] c.e.service.SkillTestDetailsService      : Initializing campus ID counters...
+2026-01-22T12:51:57.429+05:30  WARN 61256 --- [EmployeeModule] [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-01-22T12:51:58.590+05:30  INFO 61256 --- [EmployeeModule] [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint beneath base path '/actuator'
+2026-01-22T12:51:58.665+05:30  WARN 61256 --- [EmployeeModule] [           main] ConfigServletWebServerApplicationContext : Exception encountered during context initialization - cancelling refresh attempt: org.springframework.context.ApplicationContextException: Failed to start bean 'webServerStartStop'
+2026-01-22T12:51:58.669+05:30  INFO 61256 --- [EmployeeModule] [           main] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-01-22T12:51:58.673+05:30  INFO 61256 --- [EmployeeModule] [           main] com.zaxxer.hikari.HikariDataSource       : Your_Name - Shutdown initiated...
+2026-01-22T12:51:58.682+05:30  INFO 61256 --- [EmployeeModule] [           main] com.zaxxer.hikari.HikariDataSource       : Your_Name - Shutdown completed.
+2026-01-22T12:51:58.700+05:30  INFO 61256 --- [EmployeeModule] [           main] .s.b.a.l.ConditionEvaluationReportLogger : 
+
+Error starting ApplicationContext. To display the condition evaluation report re-run your application with 'debug' enabled.
+2026-01-22T12:51:58.712+05:30 ERROR 61256 --- [EmployeeModule] [           main] o.s.b.d.LoggingFailureAnalysisReporter   : 
+
+***************************
+APPLICATION FAILED TO START
+***************************
+
+Description:
+
+Web server failed to start. Port 8080 was already in use.
+
+Action:
+
+Identify and stop the process that's listening on port 8080 or configure this application to listen on another port.
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  31.796 s
+[INFO] Finished at: 2026-01-22T12:51:58+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.springframework.boot:spring-boot-maven-plugin:3.5.7:run (default-cli) on project EmployeeModule: Process terminated with exit code: 1 -> [Help 1]
+[ERROR] 
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR] 
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
