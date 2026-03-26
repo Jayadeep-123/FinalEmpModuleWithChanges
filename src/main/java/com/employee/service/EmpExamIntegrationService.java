@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.client.SimpleClientHttpRequestFactory;
 
 import com.employee.dto.EmpExamDataDTO;
 import com.employee.dto.ExamResultDTO;
@@ -35,6 +36,7 @@ public class EmpExamIntegrationService {
     private final String API_PASSWORD = "QBemp$est";
 
     private final RestTemplate restTemplate;
+    private final RestTemplate timedRestTemplate; // Dedicated RestTemplate with timeouts
     private final ObjectMapper objectMapper;
     private final SkillTestDetailsRepository skillTestRepository;
     private final com.employee.repository.SkillTestResultRepository skillTestResultRepository;
@@ -46,6 +48,13 @@ public class EmpExamIntegrationService {
             com.employee.repository.SkillTestResultRepository skillTestResultRepository,
             com.employee.repository.SkillTestApprovalStatusRepository skillTestApprovalStatusRepository) {
         this.restTemplate = restTemplate;
+        
+        // Initialize Timed RestTemplate for external SCAITS calls
+        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+        factory.setConnectTimeout(5000); // 5 seconds
+        factory.setReadTimeout(5000);    // 5 seconds
+        this.timedRestTemplate = new RestTemplate(factory);
+        
         this.objectMapper = objectMapper;
         this.skillTestRepository = skillTestRepository;
         this.skillTestResultRepository = skillTestResultRepository;
@@ -98,7 +107,7 @@ public class EmpExamIntegrationService {
             logger.info("Fetching Results from: {}", finalUrl);
 
             long startTime = System.currentTimeMillis();
-            ResponseEntity<ExamResultDTO> response = restTemplate.exchange(
+            ResponseEntity<ExamResultDTO> response = timedRestTemplate.exchange(
                     finalUrl,
                     HttpMethod.GET,
                     requestEntity,
@@ -201,77 +210,86 @@ public class EmpExamIntegrationService {
             return;
 
         try {
-            // Final Double-Check: Skip if an active result already exists locally
-            if (skillTestResultRepository.findLatestActiveByPayrollId(dto.getPayrollId()).isPresent()) {
-                logger.info("Active result already exists for {}, skipping duplicate save.", dto.getPayrollId());
-                return;
+            // 1. Find Employee locally
+            logger.debug("Attempting to find employee {} in local database...", dto.getPayrollId());
+            SkillTestDetails employee = skillTestRepository.findByTempPayrollId(dto.getPayrollId())
+                    .orElseThrow(() -> new RuntimeException("Employee not found for Result Sync: " + dto.getPayrollId()));
+
+            // 2. Check for EXACT duplicate
+            java.util.Optional<com.employee.entity.SkillTestResult> latestLocal = skillTestResultRepository
+                    .findLatestActiveByPayrollId(dto.getPayrollId());
+
+            if (latestLocal.isPresent()) {
+                com.employee.entity.SkillTestResult local = latestLocal.get();
+                int apiMarks = (int) parseDouble(dto.getTotalMarks());
+                
+                if (local.getTotalMarks() == apiMarks) {
+                    logger.info("DUPLICATE_SKIP: Identical result (marks={}) already exists for {}, skipping save.", 
+                            apiMarks, dto.getPayrollId());
+                    return;
+                }
+                logger.info("UPDATE_DETECTED: Marks changed from {} to {} for {}. Saving new record.", 
+                        local.getTotalMarks(), apiMarks, dto.getPayrollId());
+            } else {
+                logger.info("NEW_RESULT: No existing result for {}, proceeding with save.", dto.getPayrollId());
             }
 
-            // 1. Find Employee locally
-            SkillTestDetails employee = skillTestRepository.findByTempPayrollId(dto.getPayrollId())
-                    .orElseThrow(
-                            () -> new RuntimeException("Employee not found for Result Sync: " + dto.getPayrollId()));
-
-            // 2. Map DTO -> Entity
+            // 3. Map DTO -> Entity
             com.employee.entity.SkillTestResult resultEntity = new com.employee.entity.SkillTestResult();
-
             resultEntity.setSkillTestDetlId(employee);
             resultEntity.setEmpName(employee.getFirstName() + " " + employee.getLastName());
 
-            // --- INACTIVATION LOGIC ---
-            // Find existing ACTIVE results for this employee
+            // 4. Handle inactivation
             java.util.List<com.employee.entity.SkillTestResult> existingActive = skillTestResultRepository
                     .findBySkillTestDetlIdAndIsActive(employee, 1);
-
             if (existingActive != null && !existingActive.isEmpty()) {
+                logger.debug("Inactivating {} old results for {}...", existingActive.size(), dto.getPayrollId());
                 for (com.employee.entity.SkillTestResult oldResult : existingActive) {
-                    oldResult.setIsActive(0); // Deactivate
+                    oldResult.setIsActive(0);
                 }
                 skillTestResultRepository.saveAll(existingActive);
-                logger.info("Deactivated {} old results for: {}", existingActive.size(), dto.getPayrollId());
             }
-            // --------------------------
 
-            // Parse Date (dd-MM-yyyy -> SQL Date)
+            // 5. Parse Data
+            resultEntity.setNoOfQuestion(parseInteger(dto.getTotalQuestions()));
+            resultEntity.setNoOfQuesAttempt(parseInteger(dto.getAttempted()));
+            resultEntity.setNoOfQuesUnattempt(parseInteger(dto.getUnAttempted()));
+            resultEntity.setNoOfQuesCorrect(parseInteger(dto.getCorrect()));
+            resultEntity.setNoOfQuesWrong(parseInteger(dto.getWrong()));
+            resultEntity.setTotalMarks((int) parseDouble(dto.getTotalMarks()));
+            
+            // Set Date
             try {
                 if (dto.getExamDate() != null && !dto.getExamDate().trim().isEmpty()) {
                     java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("dd-MM-yyyy");
                     java.util.Date parsed = sdf.parse(dto.getExamDate());
                     resultEntity.setExamDate(new java.sql.Date(parsed.getTime()));
                 } else {
-                    logger.warn("Exam date is missing for {}, using current date.", dto.getPayrollId());
                     resultEntity.setExamDate(new java.sql.Date(System.currentTimeMillis()));
                 }
             } catch (Exception e) {
-                logger.error("Date Parse Error for {}: {}", dto.getPayrollId(), e.getMessage());
+                logger.warn("Date parse fail for {}, using system date.", dto.getPayrollId());
                 resultEntity.setExamDate(new java.sql.Date(System.currentTimeMillis()));
             }
 
-            // Parse Numbers (Handle Strings "16.0", "30", etc.)
-            resultEntity.setNoOfQuestion(parseInteger(dto.getTotalQuestions()));
-            resultEntity.setNoOfQuesAttempt(parseInteger(dto.getAttempted()));
-            resultEntity.setNoOfQuesUnattempt(parseInteger(dto.getUnAttempted()));
-            resultEntity.setNoOfQuesCorrect(parseInteger(dto.getCorrect()));
-            resultEntity.setNoOfQuesWrong(parseInteger(dto.getWrong()));
-
-            // Total Marks (Stored as int in DB, but might come as "16.0" from API)
-            resultEntity.setTotalMarks((int) parseDouble(dto.getTotalMarks()));
-
-            // Hardcoded / Default fields
             resultEntity.setIsActive(1);
-            resultEntity.setCreatedBy(dto.getCreatedBy()); // Passed from DTO as per instruction
+            
+            // Fallback for createdBy to avoid DB NOT NULL violations
+            Integer creatorId = dto.getCreatedBy() != null ? dto.getCreatedBy() : employee.getCreatedBy();
+            if (creatorId == null) creatorId = 1; 
+            resultEntity.setCreatedBy(creatorId);
 
-            // Set Approval Status (ID 1: "Skill Test Approval")
+            // Set Approval Status
             skillTestApprovalStatusRepository.findById(1).ifPresent(resultEntity::setSkillTestApprovalStatus);
 
-            long saveStartTime = System.currentTimeMillis();
-            // Save
+            // 6. Final Save
+            logger.debug("Pushing new Result entity to database for {}...", dto.getPayrollId());
             skillTestResultRepository.save(resultEntity);
-            long saveDuration = System.currentTimeMillis() - saveStartTime;
-            logger.info("Saved Exam Result for: {} (DB save took {} ms)", dto.getPayrollId(), saveDuration);
+            logger.info("SUCCESS: Saved Exam Result for ID: {} Marks: {}", dto.getPayrollId(), resultEntity.getTotalMarks());
 
         } catch (Exception e) {
-            logger.error("Error Saving Local Result for {}: {}", dto.getPayrollId(), e.getMessage());
+            logger.error("FAILURE: Error Saving Local Result for {}: {} - Cause: {}", 
+                    dto.getPayrollId(), e.getMessage(), e.getCause() != null ? e.getCause().getMessage() : "Unknown");
         }
     }
 
@@ -407,7 +425,7 @@ public class EmpExamIntegrationService {
             HttpEntity<EmpExamDataDTO> requestEntity = new HttpEntity<>(employeeData, headers);
             String finalUrl = SAVE_EMP_URL + "?empId=" + empId;
 
-            ResponseEntity<String> response = restTemplate.exchange(
+            ResponseEntity<String> response = timedRestTemplate.exchange(
                     finalUrl,
                     HttpMethod.POST,
                     requestEntity,

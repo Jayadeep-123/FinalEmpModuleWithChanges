@@ -20,11 +20,11 @@ public class EmpExamScheduler {
 
     /**
      * Scheduled task to fetch exam results for active employees without results.
-     * Cron: "0 * * * * *" means at second 0 of every minute.
+     * Cron: "0 0 * * * *" means at minute 0 of every hour.
      */
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron = "0 0 * * * *")
     public void fetchResultsScheduled() {
-        logger.info(">>> Starting Scheduled Exam Result Fetch (every 1 minute) <<<");
+        logger.info(">>> Starting Scheduled Exam Result Fetch (every 1 hour) <<<");
         try {
             integrationService.fetchAllResults();
         } catch (Exception e) {
