@@ -25,6 +25,7 @@ public class Qualification {
 	@Column(name = "is_active")
     private Integer isActive;
 
-	
+	@Column(name = "qualification_level")
+	private Integer qualificationLevel;
 
 }

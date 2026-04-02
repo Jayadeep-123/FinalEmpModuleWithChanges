@@ -1655,6 +1655,7 @@ public class HREmpDetlService {
         }
 
         EmployeeCampusInfoDTO dto = new EmployeeCampusInfoDTO();
+        dto.setPayrollId(employee.getPayRollId());
 
         // 2. Populate Top Card (Current Campus Info)
         dto.setCampusName(campus.getCampusName());
@@ -1686,7 +1687,8 @@ public class HREmpDetlService {
                     principal.getEmpName(),
                     principal.getDesignation(),
                     principal.getContactNo(),
-                    principal.getEmail());
+                    principal.getEmail(),
+                    principal.getEmpId() != null ? principal.getEmpId().getPayRollId() : null);
             dto.setPrincipalInfo(pDto);
         }
 
@@ -1902,17 +1904,31 @@ public class HREmpDetlService {
             docStatus.setDocTypeId(docType.getDoc_type_id());
             docStatus.setDocName(docType.getDoc_name());
             docStatus.setDocType(docType.getDoc_type());
+            docStatus.setIsVerified("Unverified"); // Default to Unverified
 
             boolean isUploaded = uploadedDocTypeIds.contains(docType.getDoc_type_id());
             docStatus.setIsUploaded(isUploaded);
 
             if (isUploaded) {
-                EmpDocuments uploadedDoc = uploadedDocs.stream()
+                List<EmpDocuments> matchingDocs = uploadedDocs.stream()
                         .filter(doc -> doc.getEmp_doc_type_id().getDoc_type_id() == docType.getDoc_type_id())
-                        .findFirst()
-                        .orElse(null);
+                        .sorted((d1, d2) -> {
+                            if (d1.getCreated_date() == null) return 1;
+                            if (d2.getCreated_date() == null) return -1;
+                            return d2.getCreated_date().compareTo(d1.getCreated_date());
+                        })
+                        .collect(Collectors.toList());
+
+                logger.info("Type ID {}: found {} records. Latest path: {}, Status: {}", 
+                    docType.getDoc_type_id(), matchingDocs.size(), 
+                    matchingDocs.isEmpty() ? "none" : matchingDocs.get(0).getDoc_path(),
+                    matchingDocs.isEmpty() ? "none" : matchingDocs.get(0).getIs_verified());
+
+                EmpDocuments uploadedDoc = matchingDocs.isEmpty() ? null : matchingDocs.get(0);
                 if (uploadedDoc != null) {
+                    docStatus.setDocId(uploadedDoc.getEmp_doc_id());
                     docStatus.setDocPath(uploadedDoc.getDoc_path());
+                    docStatus.setIsVerified(uploadedDoc.getIs_verified() == 1 ? "Verified" : "Unverified");
                     docStatus.setCreatedBy(uploadedDoc.getCreated_by());
                     docStatus.setCreatedDate(uploadedDoc.getCreated_date());
                     docStatus.setUpdatedBy(uploadedDoc.getUpdated_by());
@@ -2008,17 +2024,31 @@ public class HREmpDetlService {
             docStatus.setDocTypeId(docType.getDoc_type_id());
             docStatus.setDocName(docType.getDoc_name());
             docStatus.setDocType(docType.getDoc_type());
+            docStatus.setIsVerified("Unverified");
 
             boolean isUploaded = uploadedDocTypeIds.contains(docType.getDoc_type_id());
             docStatus.setIsUploaded(isUploaded);
 
             if (isUploaded) {
-                EmpDocuments uploadedDoc = uploadedDocs.stream()
+                List<EmpDocuments> matchingDocs = uploadedDocs.stream()
                         .filter(doc -> doc.getEmp_doc_type_id().getDoc_type_id() == docType.getDoc_type_id())
-                        .findFirst()
-                        .orElse(null);
+                        .sorted((d1, d2) -> {
+                            if (d1.getCreated_date() == null) return 1;
+                            if (d2.getCreated_date() == null) return -1;
+                            return d2.getCreated_date().compareTo(d1.getCreated_date());
+                        })
+                        .collect(Collectors.toList());
+
+                logger.info("Type ID {}: found {} records. Latest path: {}, Status: {}", 
+                    docType.getDoc_type_id(), matchingDocs.size(), 
+                    matchingDocs.isEmpty() ? "none" : matchingDocs.get(0).getDoc_path(),
+                    matchingDocs.isEmpty() ? "none" : matchingDocs.get(0).getIs_verified());
+
+                EmpDocuments uploadedDoc = matchingDocs.isEmpty() ? null : matchingDocs.get(0);
                 if (uploadedDoc != null) {
+                    docStatus.setDocId(uploadedDoc.getEmp_doc_id());
                     docStatus.setDocPath(uploadedDoc.getDoc_path());
+                    docStatus.setIsVerified(uploadedDoc.getIs_verified() == 1 ? "Verified" : "Unverified");
                     docStatus.setCreatedBy(uploadedDoc.getCreated_by());
                     docStatus.setCreatedDate(uploadedDoc.getCreated_date());
                     docStatus.setUpdatedBy(uploadedDoc.getUpdated_by());
@@ -2133,17 +2163,31 @@ public class HREmpDetlService {
             docStatus.setDocTypeId(docType.getDoc_type_id());
             docStatus.setDocName(docType.getDoc_name());
             docStatus.setDocType(docType.getDoc_type());
+            docStatus.setIsVerified("Unverified");
 
             boolean isUploaded = uploadedDocTypeIds.contains(docType.getDoc_type_id());
             docStatus.setIsUploaded(isUploaded);
 
             if (isUploaded) {
-                EmpDocuments uploadedDoc = uploadedDocs.stream()
+                List<EmpDocuments> matchingDocs = uploadedDocs.stream()
                         .filter(doc -> doc.getEmp_doc_type_id().getDoc_type_id() == docType.getDoc_type_id())
-                        .findFirst()
-                        .orElse(null);
+                        .sorted((d1, d2) -> {
+                            if (d1.getCreated_date() == null) return 1;
+                            if (d2.getCreated_date() == null) return -1;
+                            return d2.getCreated_date().compareTo(d1.getCreated_date());
+                        })
+                        .collect(Collectors.toList());
+
+                logger.info("Type ID {}: found {} records. Latest path: {}, Status: {}", 
+                    docType.getDoc_type_id(), matchingDocs.size(), 
+                    matchingDocs.isEmpty() ? "none" : matchingDocs.get(0).getDoc_path(),
+                    matchingDocs.isEmpty() ? "none" : matchingDocs.get(0).getIs_verified());
+
+                EmpDocuments uploadedDoc = matchingDocs.isEmpty() ? null : matchingDocs.get(0);
                 if (uploadedDoc != null) {
+                    docStatus.setDocId(uploadedDoc.getEmp_doc_id());
                     docStatus.setDocPath(uploadedDoc.getDoc_path());
+                    docStatus.setIsVerified(uploadedDoc.getIs_verified() == 1 ? "Verified" : "Unverified");
                     docStatus.setCreatedBy(uploadedDoc.getCreated_by());
                     docStatus.setCreatedDate(uploadedDoc.getCreated_date());
                     docStatus.setUpdatedBy(uploadedDoc.getUpdated_by());

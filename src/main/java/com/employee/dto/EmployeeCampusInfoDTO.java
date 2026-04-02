@@ -9,6 +9,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class EmployeeCampusInfoDTO {
 
+    private String payrollId;
+
     // --- Top Card: Current Campus Info ---
     private String campusName;
     private String campusCode;

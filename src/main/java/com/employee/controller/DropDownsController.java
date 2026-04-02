@@ -51,6 +51,28 @@ public class DropDownsController {
 		return ResponseEntity.ok(qualifications);
 	}
 
+	/**
+	 * GET endpoint to fetch qualifications filtered by qualification level.
+	 * Given a qualification level, returns all active qualifications with level strictly below it.
+	 * 
+	 * Example: If qualificationLevel = 2, returns only qualifications with level 1 (e.g., 10th)
+	 *          If qualificationLevel = 3, returns qualifications with level 1 and 2 (e.g., 10th, Inter/Diploma)
+	 * 
+	 * @param qualificationLevel The qualification level to filter by
+	 * @return List of qualifications below that level
+	 */
+	@GetMapping("/qualifications/level/{qualificationLevel}")
+	public ResponseEntity<?> getQualificationsByLevel(@PathVariable int qualificationLevel) {
+		List<GenericDropdownDTO> qualifications = empDropdownService.getQualificationsByLevel(qualificationLevel);
+
+		if (qualifications == null || qualifications.isEmpty()) {
+			return ResponseEntity.status(HttpStatus.NOT_FOUND)
+					.body("No qualifications found below level: " + qualificationLevel);
+		}
+
+		return ResponseEntity.ok(qualifications);
+	}
+
 	@GetMapping("/work-mode")
 	public ResponseEntity<?> getWorkModeTypes() {
 		List<GenericDropdownDTO> workModes = empDropdownService.getWorkModeTypes();

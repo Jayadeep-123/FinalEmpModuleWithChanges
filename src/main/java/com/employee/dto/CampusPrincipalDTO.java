@@ -13,5 +13,6 @@ public class CampusPrincipalDTO {
     private String designation;   // from CampusContact.designation
     private long contactNo;
     private String email;
+    private String payrollId;
     // Note: The image shows an EMP ID, but your CampusContact entity doesn't have it.
 }

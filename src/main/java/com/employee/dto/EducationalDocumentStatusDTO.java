@@ -35,11 +35,13 @@ public class EducationalDocumentStatusDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class DocumentStatusDTO {
+		private Integer docId; // The emp_doc_id from DB
 		private Integer docTypeId;
 		private String docName;
 		private String docType;
 		private Boolean isUploaded;
 		private String docPath; // If uploaded, show the path
+		private String isVerified; // "Verified" or "Unverified"
 		private Integer createdBy;
 		private LocalDateTime createdDate;
 		private Integer updatedBy;

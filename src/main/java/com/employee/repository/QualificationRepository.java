@@ -9,4 +9,6 @@ import com.employee.entity.Qualification;
 public interface QualificationRepository extends JpaRepository<Qualification, Integer> {
 	
 	List<Qualification> findByIsActive(int activeStatus);
+
+	List<Qualification> findByQualificationLevelLessThanAndIsActive(Integer qualificationLevel, int isActive);
 }

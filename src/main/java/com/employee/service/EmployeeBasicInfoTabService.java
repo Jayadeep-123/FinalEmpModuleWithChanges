@@ -1647,6 +1647,12 @@ public class EmployeeBasicInfoTabService {
         if (!Objects.equals(r1, r2))
             return false;
 
+        // If relation is Father (1) or Mother (2), match by relation alone.
+        // This allows updating the parent's name without creating a new record.
+        if (r1 != null && (r1 == 1 || r1 == 2)) {
+            return true;
+        }
+
         String n1 = f1.getFullName() != null ? f1.getFullName().trim() : "";
         String n2 = f2.getFullName() != null ? f2.getFullName().trim() : "";
 

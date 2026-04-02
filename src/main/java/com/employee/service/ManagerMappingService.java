@@ -1987,32 +1987,8 @@ public class ManagerMappingService {
         // Step 5: Perform complete unassignment
         boolean employeeChanged = false;
 
-        // Unassign manager
-        if (employee.getEmployee_manager_id() != null) {
-            employee.setEmployee_manager_id(null);
-            employeeChanged = true;
-        }
-
-        // Unassign reporting manager
-        if (employee.getEmployee_reporting_id() != null) {
-            employee.setEmployee_reporting_id(null);
-            employeeChanged = true;
-        }
-
-        // Unassign primary campus
-        if (employee.getCampus_id() != null) {
-            employee.setCampus_id(null);
-            employeeChanged = true;
-
-            // Deactivate primary campus subjects (EmpSubject table)
-            List<EmpSubject> empSubjects = empSubjectRepository.findActiveSubjectsByEmpId(employee.getEmp_id());
-            for (EmpSubject es : empSubjects) {
-                es.setIs_active(0);
-                es.setUpdated_by(dto.getUpdatedBy() != null ? dto.getUpdatedBy() : 1);
-                es.setUpdated_date(LocalDateTime.now());
-                empSubjectRepository.save(es);
-            }
-        }
+        // Note: As per requirement, we are NOT unassigning Manager, Reporting Manager, 
+        // or Primary Campus. We only unassign Shared Campuses.
 
         // Deactivate ALL shared campuses
         for (SharedEmployee sharedEmployee : sharedEmployees) {
@@ -2020,15 +1996,20 @@ public class ManagerMappingService {
             sharedEmployee.setUpdatedBy(dto.getUpdatedBy() != null ? dto.getUpdatedBy() : 1);
             sharedEmployee.setUpdatedDate(LocalDateTime.now());
             sharedEmployeeRepository.save(sharedEmployee);
+            employeeChanged = true;
         }
 
-        // Deactivate ALL campus employees (sce_cmps_emp)
+        // Deactivate Campus roles (sce_cmps_emp) ONLY for shared campuses
+        // (Keep the role if it's for the primary campus)
+        Integer primaryCampusId = (employee.getCampus_id() != null) ? employee.getCampus_id().getCampusId() : null;
         for (CampusEmployee ce : campusEmployees) {
-            ce.setIsActive(0);
-            ce.setUpdatedBy(dto.getUpdatedBy() != null ? dto.getUpdatedBy() : 1);
-            ce.setUpdatedDate(LocalDateTime.now());
-            campusEmployeeRepository.save(ce);
-            employeeChanged = true;
+            if (primaryCampusId == null || ce.getCmpsId() == null || ce.getCmpsId().getCampusId() != primaryCampusId) {
+                ce.setIsActive(0);
+                ce.setUpdatedBy(dto.getUpdatedBy() != null ? dto.getUpdatedBy() : 1);
+                ce.setUpdatedDate(LocalDateTime.now());
+                campusEmployeeRepository.save(ce);
+                employeeChanged = true;
+            }
         }
 
         // Step 6: Update remarks if provided
