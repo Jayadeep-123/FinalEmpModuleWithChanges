@@ -208,7 +208,7 @@ public class EmployeeEntityPreparationService {
             employee.setEmployee_replaceby_id(null);
         }
 
-        if (isConsultancyHiringType(basicInfo.getEmpTypeHiringId())) {
+        if (isConsultancyOrAgencyHiringType(basicInfo.getEmpTypeHiringId())) {
             if (basicInfo.getContractStartDate() != null) {
                 employee.setContract_start_date(basicInfo.getContractStartDate());
             } else {
@@ -440,7 +440,7 @@ public class EmployeeEntityPreparationService {
             employee.setEmployee_replaceby_id(null);
         }
 
-        if (isConsultancyHiringType(basicInfo.getEmpTypeHiringId())) {
+        if (isConsultancyOrAgencyHiringType(basicInfo.getEmpTypeHiringId())) {
             if (basicInfo.getContractStartDate() != null) {
                 employee.setContract_start_date(basicInfo.getContractStartDate());
             } else if (basicInfo.getDateOfJoin() != null) {
@@ -581,12 +581,15 @@ public class EmployeeEntityPreparationService {
             target.setStatus(source.getStatus());
     }
 
-    private boolean isConsultancyHiringType(Integer empTypeHiringId) {
+    private boolean isConsultancyOrAgencyHiringType(Integer empTypeHiringId) {
         if (empTypeHiringId == null) {
             return false;
         }
         return employeeTypeHiringRepository.findById(empTypeHiringId)
-                .map(type -> "CONSULTANCY".equalsIgnoreCase(type.getEmp_type_hiring_name()))
+                .map(type -> {
+                    String name = type.getEmp_type_hiring_name();
+                    return "CONSULTANCY".equalsIgnoreCase(name) || "AGENCY".equalsIgnoreCase(name);
+                })
                 .orElse(false);
     }
 }
