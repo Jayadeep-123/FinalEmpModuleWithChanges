@@ -161,19 +161,24 @@ public class DropDownService {
 	}
 
 	/**
-	 * Get qualifications filtered by qualification level.
-	 * Given a qualification level, returns all active qualifications
-	 * with level strictly BELOW that level.
+	 * Get qualifications filtered by a reference qualification ID.
 	 * 
-	 * Example: If level = 2, returns only "10th" (level 1).
-	 *          If level = 3, returns "10th" (level 1) and "Inter/Diploma" (level 2).
-	 * 
-	 * @param qualificationLevel The qualification level to filter by
-	 * @return List of qualifications below that level
+	 * @param qualificationId The reference qualification ID to filter by
+	 * @return List of qualifications below the level of the provided qualification ID
 	 */
-	public List<GenericDropdownDTO> getQualificationsByLevel(int qualificationLevel) {
-		return qualificationRepo.findByQualificationLevelLessThanAndIsActive(
-				qualificationLevel, ACTIVE_STATUS)
+	public List<GenericDropdownDTO> getQualificationsByReferenceId(int qualificationId) {
+		// 1. Fetch the reference qualification to get its level
+		com.employee.entity.Qualification refQualification = qualificationRepo.findById(qualificationId)
+				.orElseThrow(() -> new ResourceNotFoundException("Qualification not found with ID: " + qualificationId));
+
+		Integer level = refQualification.getQualificationLevel();
+		
+		if (level == null) {
+			return new java.util.ArrayList<>();
+		}
+		
+		// 2. Fetch all active qualifications with a level strictly BELOW that level
+		return qualificationRepo.findByQualificationLevelLessThanAndIsActive(level, ACTIVE_STATUS)
 				.stream()
 				.map(q -> new GenericDropdownDTO(q.getQualification_id(), q.getQualification_name()))
 				.collect(Collectors.toList());

@@ -52,22 +52,21 @@ public class DropDownsController {
 	}
 
 	/**
-	 * GET endpoint to fetch qualifications filtered by qualification level.
-	 * Given a qualification level, returns all active qualifications with level strictly below it.
+	 * GET endpoint to fetch qualifications filtered by a reference qualification ID.
+	 * Given a qualification ID, returns all active qualifications with a level strictly below it.
 	 * 
-	 * Example: If qualificationLevel = 2, returns only qualifications with level 1 (e.g., 10th)
-	 *          If qualificationLevel = 3, returns qualifications with level 1 and 2 (e.g., 10th, Inter/Diploma)
+	 * Example: If qualificationId of "Inter/Diploma" (Level 2) is provided, returns "10th" (Level 1)
 	 * 
-	 * @param qualificationLevel The qualification level to filter by
-	 * @return List of qualifications below that level
+	 * @param qualificationId The reference qualification ID to filter by
+	 * @return List of qualifications below the level of the provided qualification ID
 	 */
-	@GetMapping("/qualifications/level/{qualificationLevel}")
-	public ResponseEntity<?> getQualificationsByLevel(@PathVariable int qualificationLevel) {
-		List<GenericDropdownDTO> qualifications = empDropdownService.getQualificationsByLevel(qualificationLevel);
+	@GetMapping("/qualifications/filter/ref-id/{qualificationId}")
+	public ResponseEntity<?> getQualificationsByReferenceId(@PathVariable int qualificationId) {
+		List<GenericDropdownDTO> qualifications = empDropdownService.getQualificationsByReferenceId(qualificationId);
 
 		if (qualifications == null || qualifications.isEmpty()) {
 			return ResponseEntity.status(HttpStatus.NOT_FOUND)
-					.body("No qualifications found below level: " + qualificationLevel);
+					.body("No qualifications found below level for ID: " + qualificationId);
 		}
 
 		return ResponseEntity.ok(qualifications);

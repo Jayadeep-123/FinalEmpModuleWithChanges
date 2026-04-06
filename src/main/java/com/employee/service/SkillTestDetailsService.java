@@ -351,6 +351,15 @@ public class SkillTestDetailsService {
         newDetails.setFirstName(requestDto.getFirstName());
         newDetails.setLastName(requestDto.getLastName());
         newDetails.setDob(requestDto.getDob());
+        
+        // Populate Age
+        if (requestDto.getDob() != null) {
+            int calculatedAge = java.time.Period.between(requestDto.getDob(), java.time.LocalDate.now()).getYears();
+            newDetails.setAge(calculatedAge);
+        } else if (requestDto.getAge() != null) {
+            newDetails.setAge(requestDto.getAge());
+        }
+
         newDetails.setEmail(requestDto.getEmail());
         newDetails.setTotalExperience(requestDto.getTotalExperience());
         newDetails.setContact_number(requestDto.getContactNumber());
@@ -417,6 +426,7 @@ public class SkillTestDetailsService {
         dto.setFirstName(entity.getFirstName());
         dto.setLastName(entity.getLastName());
         dto.setDob(entity.getDob());
+        dto.setAge(entity.getAge());
         dto.setContactNumber(entity.getContact_number());
         dto.setEmail(entity.getEmail());
         dto.setTotalExperience(entity.getTotalExperience());

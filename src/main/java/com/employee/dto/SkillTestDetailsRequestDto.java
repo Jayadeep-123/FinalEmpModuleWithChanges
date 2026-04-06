@@ -21,6 +21,7 @@ public class SkillTestDetailsRequestDto {
     private String firstName; // Corrected from 'name'
     private String lastName; // Corrected from 'surname'
     private LocalDate dob; // Corrected from 'dateOfBirth'
+    private Integer age;
 
     private Long contactNumber;
     private String email;
