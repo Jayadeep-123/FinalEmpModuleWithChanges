@@ -1588,16 +1588,20 @@ public class ManagerMappingService {
                     .findFirst()
                     .orElse(buildings.get(0));
 
-            // Fetch address
-            BuildingAddress buildingAddress = buildingAddressRepository.findByBuildingIdAndAddressType(
+            // Fetch address (Active only)
+            List<BuildingAddress> buildingAddresses = buildingAddressRepository.findByBuildingIdAndAddressType(
                     selectedBuilding.getBuildingId(), "address");
+            
+            BuildingAddress buildingAddress = (buildingAddresses != null && !buildingAddresses.isEmpty()) 
+                    ? buildingAddresses.get(0) : null;
 
             if (buildingAddress == null) {
-                buildingAddress = buildingAddressRepository.findAddressByBuildingId(selectedBuilding.getBuildingId());
+                List<BuildingAddress> fbAddresses = buildingAddressRepository.findAddressByBuildingId(selectedBuilding.getBuildingId());
+                buildingAddress = (fbAddresses != null && !fbAddresses.isEmpty()) ? fbAddresses.get(0) : null;
             }
 
             if (buildingAddress == null) {
-                dto.setFullAddress("Address: No address record found for building");
+                dto.setFullAddress("Address: No active address record found for building");
                 return dto;
             }
 

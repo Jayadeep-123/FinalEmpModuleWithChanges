@@ -60,7 +60,7 @@ public interface EmpChequeDetailsRepository extends JpaRepository<EmpChequeDetai
 	/**
 	 * This query for finding only active cheques is also correct.
 	 */
-	@Query("SELECT e FROM EmpChequeDetails e WHERE e.empId.emp_id = :empId AND e.isActive = 1")
+	@Query("SELECT e FROM EmpChequeDetails e WHERE e.empId.emp_id = :empId AND e.isActive = 1 ORDER BY e.empChequeDetailsId ASC")
     List<EmpChequeDetails> findActiveChequesByEmpId(@Param("empId") Integer empId);
 
 }

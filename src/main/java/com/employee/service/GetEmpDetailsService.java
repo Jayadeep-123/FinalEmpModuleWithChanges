@@ -168,6 +168,7 @@ public class GetEmpDetailsService {
 	private EmpExperienceDetailsDTO convertToDTO(EmpExperienceDetails entity) {
 		EmpExperienceDetailsDTO dto = new EmpExperienceDetailsDTO();
 
+		dto.setEmpExpDetlId(entity.getEmp_exp_detl_id());
 		dto.setCompanyName(entity.getPre_organigation_name());
 		dto.setDesignation(entity.getDesignation());
 		dto.setFromDate(entity.getDate_of_join().toLocalDate());
@@ -345,11 +346,12 @@ public class GetEmpDetailsService {
 
 		Employee employee = employeeOpt.get();
 
-		// Fetch all cheques linked to this employee
-		List<EmpChequeDetails> cheques = empChequeDetailsRepository.findByEmpId_emp_id(employee.getEmp_id());
+		// Fetch all active cheques linked to this employee
+		List<EmpChequeDetails> cheques = empChequeDetailsRepository.findActiveChequesByEmpId(employee.getEmp_id());
 		// Map cheque details to DTO list
 		List<ChequeDetailsDto> chequeDtos = cheques.stream().map(ch -> {
 			ChequeDetailsDto d = new ChequeDetailsDto();
+			d.setChequeId(ch.getEmpChequeDetailsId());
 			d.setChequeNo(ch.getChequeNo());
 			d.setChequeBank(ch.getChequeBankName());
 			d.setIfscCode(ch.getChequeBankIfscCode());
@@ -701,6 +703,7 @@ public class GetEmpDetailsService {
 		List<FamilyDetailsResponseDTO> members = familyDetailsList.stream().map(familyDetail -> {
 			FamilyDetailsResponseDTO dto = new FamilyDetailsResponseDTO();
 
+			dto.setEmpFamilyDetlId(familyDetail.getEmp_family_detl_id());
 			dto.setName(familyDetail.getFullName());
 			dto.setFullName(familyDetail.getFullName());
 			dto.setAdhaarNo(familyDetail.getAdhaarNo());

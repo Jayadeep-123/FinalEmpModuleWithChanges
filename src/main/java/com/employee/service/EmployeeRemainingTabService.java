@@ -1932,83 +1932,82 @@ public class EmployeeRemainingTabService {
             // Optimization: Fetch only active cheques using the repository method
             List<EmpChequeDetails> existingCheques = empChequeDetailsRepository.findActiveChequesByEmpId(empId);
 
-            for (int i = 0; i < agreementInfo.getChequeDetails().size(); i++) {
-                AgreementInfoDTO.ChequeDetailDTO chequeDTO = agreementInfo.getChequeDetails().get(i);
+            // 1. Track IDs of cheques being submitted to identify which existing ones should be deactivated
+            List<Integer> submittedIds = agreementInfo.getChequeDetails().stream()
+                    .map(AgreementInfoDTO.ChequeDetailDTO::getChequeId)
+                    .filter(java.util.Objects::nonNull)
+                    .collect(Collectors.toList());
+
+            // 2. Process incoming cheques: Match by ID or insert as New
+            for (AgreementInfoDTO.ChequeDetailDTO chequeDTO : agreementInfo.getChequeDetails()) {
                 if (chequeDTO == null)
                     continue;
 
-                if (i < existingCheques.size()) {
-                    // Update existing cheque
-                    EmpChequeDetails existing = existingCheques.get(i);
-                    existing.setChequeNo(chequeDTO.getChequeNo());
-                    existing.setChequeBankName(chequeDTO.getChequeBankName().trim());
-                    existing.setChequeBankIfscCode(chequeDTO.getChequeBankIfscCode().trim());
-                    existing.setIsActive(1);
-
-                    // Set audit fields for update
-                    if (updatedBy != null && updatedBy > 0) {
-                        existing.setUpdatedBy(updatedBy);
-                    }
-                    existing.setUpdatedDate(LocalDateTime.now());
-
-                    EmpChequeDetails saved = empChequeDetailsRepository.save(existing);
-
-                    // Save/Update associated document if path is provided
-                    if (chequeDTO.getChequePath() != null) {
-                        EmpDocuments savedDoc = saveOrUpdateChequeDocument(saved, employee, chequeDTO.getChequePath(),
-                                createdBy, updatedBy);
-                        if (savedDoc != null) {
-                            // Set emp_doc_id in cheque details table
-                            saved.setEmpDocId(savedDoc);
-                            empChequeDetailsRepository.save(saved);
-                        }
-                    }
-                } else {
-                    // Create new cheque
-                    EmpChequeDetails cheque = new EmpChequeDetails();
+                EmpChequeDetails cheque;
+                if (chequeDTO.getChequeId() != null) {
+                    // Match by ID among current active cheques
+                    cheque = existingCheques.stream()
+                            .filter(c -> c.getEmpChequeDetailsId().equals(chequeDTO.getChequeId()))
+                            .findFirst()
+                            .orElseGet(() -> {
+                                // Fallback: Check all records if not found in active list
+                                return empChequeDetailsRepository.findById(chequeDTO.getChequeId())
+                                        .orElse(new EmpChequeDetails());
+                            });
+                    
+                    // Ensure links are correct if it was an existing record
                     cheque.setEmpId(employee);
-                    cheque.setChequeNo(chequeDTO.getChequeNo());
-                    cheque.setChequeBankName(chequeDTO.getChequeBankName().trim());
-                    cheque.setChequeBankIfscCode(chequeDTO.getChequeBankIfscCode().trim());
-                    cheque.setIsActive(1);
-
-                    // Crucial fix: Always set createdDate for new records (mandatory NOT NULL
-                    // column)
+                    
+                    // Audit fields for update
+                    if (updatedBy != null && updatedBy > 0) {
+                        cheque.setUpdatedBy(updatedBy);
+                    }
+                    cheque.setUpdatedDate(LocalDateTime.now());
+                } else {
+                    // No ID provided, treat as a new cheque record
+                    cheque = new EmpChequeDetails();
+                    cheque.setEmpId(employee);
                     cheque.setCreatedDate(LocalDateTime.now());
-
-                    // Set createdBy if provided, otherwise default will be used from entity (1)
+                    
                     if (createdBy != null && createdBy > 0) {
                         cheque.setCreatedBy(createdBy);
                     } else {
-                        cheque.setCreatedBy(1); // Explicit fallback
+                        cheque.setCreatedBy(1);
                     }
+                }
 
-                    EmpChequeDetails saved = empChequeDetailsRepository.save(cheque);
+                // Map data fields
+                cheque.setChequeNo(chequeDTO.getChequeNo());
+                cheque.setChequeBankName(chequeDTO.getChequeBankName().trim());
+                cheque.setChequeBankIfscCode(chequeDTO.getChequeBankIfscCode().trim());
+                cheque.setIsActive(1);
 
-                    // Save associated document if path is provided
-                    if (chequeDTO.getChequePath() != null) {
-                        EmpDocuments savedDoc = saveOrUpdateChequeDocument(saved, employee, chequeDTO.getChequePath(),
-                                createdBy, updatedBy);
-                        if (savedDoc != null) {
-                            // Set emp_doc_id in cheque details table
-                            saved.setEmpDocId(savedDoc);
-                            empChequeDetailsRepository.save(saved);
-                        }
+                EmpChequeDetails saved = empChequeDetailsRepository.save(cheque);
+
+                // Save or update associated document
+                if (chequeDTO.getChequePath() != null) {
+                    EmpDocuments savedDoc = saveOrUpdateChequeDocument(saved, employee, chequeDTO.getChequePath(),
+                            createdBy, updatedBy);
+                    if (savedDoc != null) {
+                        saved.setEmpDocId(savedDoc);
+                        empChequeDetailsRepository.save(saved);
                     }
                 }
             }
 
-            // Deactivate extra cheques if we have fewer in the new submission
-            if (existingCheques.size() > agreementInfo.getChequeDetails().size()) {
-                for (int i = agreementInfo.getChequeDetails().size(); i < existingCheques.size(); i++) {
-                    EmpChequeDetails extraCheque = existingCheques.get(i);
-                    extraCheque.setIsActive(0);
+            // 3. Deactivate existing cheques that were NOT in the submitted list
+            for (EmpChequeDetails existing : existingCheques) {
+                if (!submittedIds.contains(existing.getEmpChequeDetailsId())) {
+                    existing.setIsActive(0);
                     if (updatedBy != null && updatedBy > 0) {
-                        extraCheque.setUpdatedBy(updatedBy);
+                        existing.setUpdatedBy(updatedBy);
                     }
-                    extraCheque.setUpdatedDate(LocalDateTime.now());
-                    EmpChequeDetails deactivated = empChequeDetailsRepository.save(extraCheque);
+                    existing.setUpdatedDate(LocalDateTime.now());
+                    EmpChequeDetails deactivated = empChequeDetailsRepository.save(existing);
                     deactivateChequeDocument(deactivated, updatedBy);
+                    
+                    logger.info("Deactivated orphaned cheque (ID: {}) for emp_id: {} as it was missing from update submission", 
+                            existing.getEmpChequeDetailsId(), empId);
                 }
             }
 

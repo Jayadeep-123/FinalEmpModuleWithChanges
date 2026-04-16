@@ -53,6 +53,7 @@ public class AgreementInfoDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class ChequeDetailDTO {
+		private Integer chequeId; // Cheque ID for stable matching during updates
 		private Long chequeNo; // Cheque Number - int8 (bigint)
 		private String chequeBankName; // Bank Name - varchar(50)
 		private String chequeBankIfscCode; // IFSC Code - varchar(20)

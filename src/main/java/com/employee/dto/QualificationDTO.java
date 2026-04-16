@@ -26,6 +26,7 @@ public class QualificationDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class QualificationDetailsDTO {
+		private Integer empQualificationId; // Case-stable ID
 		private Integer qualificationId; // Qualification type ID - maps to Qualification.qualification_id
 		private Integer qualificationDegreeId; // Degree ID - maps to QualificationDegree.qualification_degree_id
 		private String specialization; // Maps to EmpQualification.specialization

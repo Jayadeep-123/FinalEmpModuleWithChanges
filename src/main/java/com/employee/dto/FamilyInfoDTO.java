@@ -42,6 +42,7 @@ public class FamilyInfoDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class FamilyMemberDTO {
+		private Integer empFamilyDetlId; // Case-stable ID
 		private String fullName;
 		private Long adhaarNo;
 		private Boolean isLate; // Late checkbox

@@ -1,5 +1,7 @@
 package com.employee.repository;
  
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -11,11 +13,11 @@ import com.employee.entity.BuildingAddress;
 public interface BuildingAddressRepository  extends JpaRepository<BuildingAddress, Integer>{
 	
 	// Recommended: Filter by both building ID and the specific address type string
-	@Query("SELECT ba FROM BuildingAddress ba WHERE ba.building.buildingId = :buildingId AND ba.address_type = :type")
-    BuildingAddress findByBuildingIdAndAddressType(@Param("buildingId") Integer buildingId, @Param("type") String type);
+	@Query("SELECT ba FROM BuildingAddress ba WHERE ba.building.buildingId = :buildingId AND ba.address_type = :type AND ba.is_active = 1")
+    List<BuildingAddress> findByBuildingIdAndAddressType(@Param("buildingId") Integer buildingId, @Param("type") String type);
  
-    @Query("SELECT ba FROM BuildingAddress ba WHERE ba.building.buildingId = :buildingId")
-    BuildingAddress findAddressByBuildingId(@Param("buildingId") Integer buildingId);
+    @Query("SELECT ba FROM BuildingAddress ba WHERE ba.building.buildingId = :buildingId AND ba.is_active = 1")
+    List<BuildingAddress> findAddressByBuildingId(@Param("buildingId") Integer buildingId);
  
 //	BuildingAddress findAddressByBuildingId(int buildingId);
  

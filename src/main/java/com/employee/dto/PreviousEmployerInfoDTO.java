@@ -26,6 +26,7 @@ public class PreviousEmployerInfoDTO {
 	@NoArgsConstructor
 	@AllArgsConstructor
 	public static class EmployerDetailsDTO {
+		private Integer empExpDetlId; // Unique ID for matching during updates
 		private String companyName; // pre_organigation_name
 		private String designation;
 		private Date fromDate; // date_of_join

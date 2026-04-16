@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 public class FamilyDetailsResponseDTO {
 
     // Family Member Details (from EmpFamilyDetails and related entities)
+    private Integer empFamilyDetlId; // Case-stable ID
     private String name; // e.g., "Name of Father"
     private String fullName; // Added for POST consistency
     private String relation; // e.g., "Father", "Mother"

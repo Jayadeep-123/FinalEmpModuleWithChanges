@@ -6,7 +6,7 @@ import java.time.LocalDate;
 
 @Data
 public class EmpExperienceDetailsDTO {
-
+    private Integer empExpDetlId; // Unique database ID
     private String companyName; // Mapped from preOrzanigationName
     private String designation;
     private LocalDate fromDate; // Mapped from dateOfJoin

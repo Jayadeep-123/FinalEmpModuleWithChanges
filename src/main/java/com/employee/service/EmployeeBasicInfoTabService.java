@@ -1414,7 +1414,7 @@ public class EmployeeBasicInfoTabService {
      */
     private int saveFamilyEntities(Employee employee, FamilyInfoDTO familyInfo, Integer createdBy, Integer updatedBy) {
         List<EmpFamilyDetails> familyEntities = prepareFamilyEntities(familyInfo, employee, createdBy);
-        updateOrCreateFamilyEntities(familyEntities, employee, updatedBy);
+        updateOrCreateFamilyEntities(familyEntities, employee, familyInfo, updatedBy);
         return familyEntities.size();
     }
 
@@ -1452,6 +1452,11 @@ public class EmployeeBasicInfoTabService {
         EmpFamilyDetails familyMember = new EmpFamilyDetails();
 
         familyMember.setEmp_id(employee);
+
+        // Set ID if provided in DTO (used for matching during updates)
+        if (memberDTO.getEmpFamilyDetlId() != null && memberDTO.getEmpFamilyDetlId() > 0) {
+            familyMember.setEmp_family_detl_id(memberDTO.getEmpFamilyDetlId());
+        }
 
         // Full Name and Aadhaar (Updated)
         familyMember.setFullName(memberDTO.getFullName());
@@ -1580,7 +1585,8 @@ public class EmployeeBasicInfoTabService {
         return familyMember;
     }
 
-    private void updateOrCreateFamilyEntities(List<EmpFamilyDetails> newFamily, Employee employee, Integer updatedBy) {
+    private void updateOrCreateFamilyEntities(List<EmpFamilyDetails> newFamily, Employee employee,
+            FamilyInfoDTO familyInfoDTO, Integer updatedBy) {
         int empId = employee.getEmp_id();
 
         // 1. Get existing active family members
@@ -1593,7 +1599,8 @@ public class EmployeeBasicInfoTabService {
         java.util.Set<Integer> matchedExistingIds = new java.util.HashSet<>();
 
         // 3. Process newFamily list (updates or new records)
-        for (EmpFamilyDetails newFam : newFamily) {
+        for (int i = 0; i < newFamily.size(); i++) {
+            EmpFamilyDetails newFam = newFamily.get(i);
             newFam.setEmp_id(employee);
             newFam.setIs_active(1);
 
@@ -1604,6 +1611,7 @@ public class EmployeeBasicInfoTabService {
                     .findFirst()
                     .orElse(null);
 
+            EmpFamilyDetails savedFam;
             if (existingMatch != null) {
                 matchedExistingIds.add(existingMatch.getEmp_family_detl_id());
                 boolean changed = updateFamilyFields(existingMatch, newFam);
@@ -1613,11 +1621,18 @@ public class EmployeeBasicInfoTabService {
                         existingMatch.setUpdated_by(updatedBy);
                         existingMatch.setUpdated_date(LocalDateTime.now());
                     }
-                    empFamilyDetailsRepository.save(existingMatch);
+                    savedFam = empFamilyDetailsRepository.save(existingMatch);
+                } else {
+                    savedFam = existingMatch;
                 }
             } else {
                 // New record - no match found in existing
-                empFamilyDetailsRepository.save(newFam);
+                savedFam = empFamilyDetailsRepository.save(newFam);
+            }
+
+            if (savedFam != null && familyInfoDTO != null && familyInfoDTO.getFamilyMembers() != null) {
+                // Return the ID for the identity feedback loop
+                familyInfoDTO.getFamilyMembers().get(i).setEmpFamilyDetlId(savedFam.getEmp_family_detl_id());
             }
         }
 
@@ -1641,6 +1656,12 @@ public class EmployeeBasicInfoTabService {
         if (f1 == null || f2 == null)
             return false;
 
+        // Priority 1: Match by database ID if both have it
+        if (f1.getEmp_family_detl_id() > 0 && f2.getEmp_family_detl_id() > 0) {
+            return f1.getEmp_family_detl_id() == f2.getEmp_family_detl_id();
+        }
+
+        // Priority 2: Fallback to existing heuristics
         Integer r1 = f1.getRelation_id() != null ? f1.getRelation_id().getStudentRelationId() : null;
         Integer r2 = f2.getRelation_id() != null ? f2.getRelation_id().getStudentRelationId() : null;
 
@@ -1889,6 +1910,11 @@ public class EmployeeBasicInfoTabService {
         EmpExperienceDetails experience = new EmpExperienceDetails();
         experience.setEmployee_id(employee);
 
+        // Set ID if provided in DTO (used for matching during updates)
+        if (employerDTO.getEmpExpDetlId() != null && employerDTO.getEmpExpDetlId() > 0) {
+            experience.setEmp_exp_detl_id(employerDTO.getEmpExpDetlId());
+        }
+
         if (employerDTO.getCompanyName() != null) {
             String companyName = employerDTO.getCompanyName().trim();
             if (companyName.length() > 50) {
@@ -2029,9 +2055,14 @@ public class EmployeeBasicInfoTabService {
             }
 
             // Handle documents for this employer (use index i to link to correct DTO item)
-            if (dto.getPreviousEmployers().get(i).getDocuments() != null) {
-                saveEmployerDocuments(employee, savedExp, dto.getPreviousEmployers().get(i).getDocuments(),
-                        createdBy, updatedBy);
+            if (savedExp != null) {
+                // Return the ID to the frontend for the identity feedback loop
+                dto.getPreviousEmployers().get(i).setEmpExpDetlId(savedExp.getEmp_exp_detl_id());
+
+                if (dto.getPreviousEmployers().get(i).getDocuments() != null) {
+                    saveEmployerDocuments(employee, savedExp, dto.getPreviousEmployers().get(i).getDocuments(),
+                            createdBy, updatedBy);
+                }
             }
         }
 
@@ -2056,6 +2087,13 @@ public class EmployeeBasicInfoTabService {
     private boolean areExperiencesSame(EmpExperienceDetails e1, EmpExperienceDetails e2) {
         if (e1 == null || e2 == null)
             return false;
+
+        // Priority 1: Match by ID if both have it
+        if (e1.getEmp_exp_detl_id() > 0 && e2.getEmp_exp_detl_id() > 0) {
+            return e1.getEmp_exp_detl_id() == e2.getEmp_exp_detl_id();
+        }
+
+        // Priority 2: Fallback to match by organization name
         String n1 = e1.getPre_organigation_name() != null ? e1.getPre_organigation_name().trim() : "";
         String n2 = e2.getPre_organigation_name() != null ? e2.getPre_organigation_name().trim() : "";
         return n1.equalsIgnoreCase(n2);

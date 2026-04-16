@@ -105,6 +105,12 @@ public class EmployeeOnboardingView {
     @Column(name = "mode_of_hiring_name")
     private String modeOfHiringName;
 
+    @Column(name = "emp_type_hiring_id")
+    private Integer empTypeHiringId;
+
+    @Column(name = "emp_type_hiring_name")
+    private String empTypeHiringName;
+
     @Column(name = "emp_type")
     private String empType;
 

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChequeDetailsDto {
+    private Integer chequeId;
     private Long chequeNo;
     private String chequeBank;
     private String ifscCode;
