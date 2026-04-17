@@ -27,6 +27,7 @@ public class AgreementInfoDTO {
 	private Integer agreementOrgId; // Agreement Company - FK to sce_campus.sce_organization
 	private String agreementType; // Agreement Type - stored in Employee.agreement_type
 	private String agreementPath; // New field: Path of the uploaded agreement document
+	private Integer agreementDocId; // New field: ID of the agreement document record for stable updates
 
 	// Category passed by user (e.g., "school", "college") - used to determine
 	// status change logic

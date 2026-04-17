@@ -407,8 +407,8 @@ public class EmployeeRemainingTabService {
 
             if (agreementInfo != null) {
                 saveAgreementChequeDetails(agreementInfo, employee, createdBy, updatedBy);
-                // Save Agreement Document path
-                saveOrUpdateAgreementDocument(employee, agreementInfo.getAgreementPath(), createdBy, updatedBy);
+                // Save Agreement Document path with ID-based matching support
+                saveOrUpdateAgreementDocument(employee, agreementInfo.getAgreementPath(), agreementInfo.getAgreementDocId(), createdBy, updatedBy);
             }
 
             logger.info("✅ Finished processing agreement info for emp_id: {} (tempPayrollId: {}). Category: '{}'",
@@ -2337,21 +2337,29 @@ public class EmployeeRemainingTabService {
     /**
      * Helper: Save or update the agreement document path in EmpDocuments
      */
-    private void saveOrUpdateAgreementDocument(Employee employee, String docPath, Integer createdBy,
-            Integer updatedBy) {
+    private void saveOrUpdateAgreementDocument(Employee employee, String docPath, Integer agreementDocId,
+            Integer createdBy, Integer updatedBy) {
         if (docPath == null || docPath.trim().isEmpty() || "string".equalsIgnoreCase(docPath)) {
             // Updated behavior: Do NOTHING if empty/null. Do not deactivate.
             return;
         }
 
         String docName = "Agreement";
-        Optional<EmpDocuments> existingDoc = empDocumentsRepository.findByEmpIdAndDocName(employee.getEmp_id(),
-                docName).stream().findFirst();
+        EmpDocuments docEntity = null;
 
-        EmpDocuments docEntity;
-        if (existingDoc.isPresent()) {
-            docEntity = existingDoc.get();
-        } else {
+        // 1. Try to match by provided ID first (most accurate)
+        if (agreementDocId != null && agreementDocId > 0) {
+            docEntity = empDocumentsRepository.findById(agreementDocId).orElse(null);
+        }
+
+        // 2. Fallback: Try to match by name if ID was missing or not found
+        if (docEntity == null) {
+            docEntity = empDocumentsRepository.findByEmpIdAndDocName(employee.getEmp_id(), docName)
+                    .stream().findFirst().orElse(null);
+        }
+
+        if (docEntity == null) {
+            // 3. Create new if still not found
             docEntity = new EmpDocuments();
             docEntity.setEmp_id(employee);
             docEntity.setIs_active(1);

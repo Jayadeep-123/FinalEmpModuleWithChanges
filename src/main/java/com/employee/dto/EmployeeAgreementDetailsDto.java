@@ -14,6 +14,7 @@ public class EmployeeAgreementDetailsDto {
     private String agreementCompany;
     private String agreementType;
     private String agreementPath;
+    private Integer agreementDocId; // New field: ID of the agreement document record
 
     // Cheque Info
     private int noOfCheques;

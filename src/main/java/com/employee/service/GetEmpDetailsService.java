@@ -395,6 +395,7 @@ public class GetEmpDetailsService {
 
 		if (!agreementDocs.isEmpty()) {
 			dto.setAgreementPath(agreementDocs.get(0).getDoc_path());
+			dto.setAgreementDocId(agreementDocs.get(0).getEmp_doc_id());
 		}
 
 		dto.setNoOfCheques(chequeDtos.size());
