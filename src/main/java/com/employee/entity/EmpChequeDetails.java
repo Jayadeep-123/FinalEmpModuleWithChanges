@@ -2,6 +2,8 @@ package com.employee.entity;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.CreationTimestamp;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -44,9 +46,13 @@ public class EmpChequeDetails {
 
 	// Audit fields - required NOT NULL columns
 	@Column(name = "created_by", nullable = false)
-	private Integer createdBy = 1; // Default to 1 if not provided
+	private Integer createdBy; // Default to 1 if not provided
 
-	@Column(name = "created_date", nullable = false)
+//	@Column(name = "created_date", nullable = false)
+//	private LocalDateTime createdDate;
+	
+	@CreationTimestamp
+	@Column(name = "created_date", nullable = false, updatable = false)
 	private LocalDateTime createdDate;
 
 	@Column(name = "updated_by")

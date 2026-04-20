@@ -1958,11 +1958,21 @@ public class EmployeeRemainingTabService {
                     // Ensure links are correct if it was an existing record
                     cheque.setEmpId(employee);
                     
-                    // Audit fields for update
-                    if (updatedBy != null && updatedBy > 0) {
-                        cheque.setUpdatedBy(updatedBy);
+                    if (cheque.getEmpChequeDetailsId() == null) {
+                        // It was actually a new record created by fallback
+                        cheque.setCreatedDate(LocalDateTime.now());
+                        if (createdBy != null && createdBy > 0) {
+                            cheque.setCreatedBy(createdBy);
+                        } else {
+                            cheque.setCreatedBy(1);
+                        }
+                    } else {
+                        // Audit fields for update
+                        if (updatedBy != null && updatedBy > 0) {
+                            cheque.setUpdatedBy(updatedBy);
+                        }
+                        cheque.setUpdatedDate(LocalDateTime.now());
                     }
-                    cheque.setUpdatedDate(LocalDateTime.now());
                 } else {
                     // No ID provided, treat as a new cheque record
                     cheque = new EmpChequeDetails();
